@@ -16,13 +16,23 @@ pub trait Worldly {
 }
 
 pub trait Mobile {
-	fn move_towards(&mut self, direction: f32, magnitude: f32);
+	fn propel(&mut self);
+	fn turn(&mut self, amt: f32);
+	fn heading(&self) -> f32;
+}
+
+pub trait WormBrain {
+	fn act(&mut self, world: &mut World) -> Option<()>;
+	fn navigate(&mut self, world: &mut World, scent_new: Scent);
+	fn eat(&mut self, world: &mut World, scent_new: &Scent);
+	fn propel(&self, world: &mut World);
 }
 
 
 pub struct EntityBody {
 	name: String,
 	loc: Location,
+	heading: f32,
 	kind: EntityKind,
 	pub eaten: bool,
 	pub uid: uint,
@@ -32,6 +42,7 @@ impl EntityBody {
 		EntityBody {
 			name: name,
 			loc: loc,
+			heading: 0f32,
 			kind: kind,
 			eaten: false,
 			uid: 0,
@@ -56,10 +67,22 @@ impl Show for EntityBody {
 	 	) 
 	}
 }
+
 impl Mobile for EntityBody {
-	fn move_towards(&mut self, dir: f32, distance: f32) {
-		// direction is in radians where up (north) is pi/2 and right (east) is 0
-		let direction = dir * common::TAU;
+	fn turn(&mut self, amt: f32) {
+		self.heading += amt;
+		self.heading = common::normalize_bearing(self.heading);
+	}
+
+	fn heading(&self) -> f32 {
+		self.heading
+	}
+
+	fn propel(&mut self) {
+
+		let distance = common::WORM_SPEED;
+		
+		let direction = self.heading * common::TAU;
 
 		let x = direction.cos() * distance;
 		let y = direction.sin() * distance;
@@ -126,66 +149,66 @@ impl Show for EntityKind {
 
 
 pub struct EntityBrain {
+	body_uid: uint,
 	scent_prev: Scent,
 	just_turned_about: bool,
-	heading: f32,
 }
 impl EntityBrain {
-	pub fn new(scent_init: Scent) -> EntityBrain {
+	pub fn new(body_uid: uint, world: &World) -> EntityBrain {
+
 		EntityBrain { 
-			scent_prev: scent_init,
+			body_uid: body_uid,
+			scent_prev: world.sniff_from(body_uid),
 			just_turned_about: false,
-			heading: 0.30f32,
 		}
 	}
 
-	pub fn act(&mut self, world: &mut World) -> Option<()> {
+	pub fn print(&self) {
+		print!("[Heading:, Previous Scent:{}] ", self.scent_prev);
+	}
+}
+impl WormBrain for EntityBrain {
+	fn act(&mut self, world: &mut World) -> Option<()> {
 
-		let scent_new = world.sniff_at_entity(0);
+		let scent_new = world.sniff_from(self.body_uid);
 
 		if scent_new.sweet == 0f32 {
 			println!("Nothing else to eat");
 			return Option::None;
 		}
 
-		self.navigate(scent_new);		
-		self.move_body(world);
-		self.eat(world);
+		self.navigate(world, scent_new.clone());
+		self.propel(world);
+		self.eat(world, &scent_new);
 
 		Option::Some(())
 	}
 
-	fn navigate(&mut self, scent_new: Scent) {
+	fn navigate(&mut self, world: &mut World, scent_new: Scent) {
+		let body = world.entities().get_mut(self.body_uid);
 		if self.scent_prev.sweet > scent_new.sweet {
 			if !self.just_turned_about {
-				self.heading += 0.25f32;
+				body.turn(0.25f32);
 				self.just_turned_about = true;
 			} else {
-				self.heading += 0.5f32;
+				body.turn(0.5f32);
 				self.just_turned_about = false;
 			}
 		}
 
 		self.scent_prev = scent_new;
-		if self.heading > 1f32 { self.heading -= 1f32 };
 	}
-
-	fn move_body(&self, world: &mut World) {
-		let body = world.entities().get_mut(0);
-		body.move_towards(self.heading, common::WORM_SPEED);
-	}
-
-	fn eat(&mut self, world: &mut World) {
-		let scent_new: Scent = world.sniff_at_entity(0);
+	
+	fn eat(&mut self, world: &mut World, scent_new: &Scent) {
 		//let body = world.entities().get_mut(0);
 		
 		if scent_new.sweet >= 1f32 {
-			world.feed_entity(0);
+			world.feed_entity(self.body_uid);
 		}
 	}
-	
-	pub fn print(&self) {
-		print!("[Heading:{}, Previous Scent:{}] ", self.heading, self.scent_prev);
+
+	fn propel(&self, world: &mut World) {
+		let body = world.entities().get_mut(self.body_uid);
+		body.propel();
 	}
-	
 }

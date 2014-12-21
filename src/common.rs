@@ -1,14 +1,21 @@
 
 use std::f32;
 use std::num::Float;
+use std::num::FloatMath;
 use std::fmt::{ Show, Formatter };
 use std::fmt::Result;
 use std::clone::Clone;
+use std;
 
-//pub const PI: f32 = f32::consts::PI;
+pub const PI: f32 = f32::consts::PI;
 pub const TAU: f32 = f32::consts::PI_2;
 
 pub const WORM_SPEED: f32 = 0.1f32;
+pub const ENTITY_VISIBLE_WIDTH: f32 = 10f32;
+pub const VISION_RESOLUTION: uint = 1024u;
+
+//pub const PEEK_INITIAL_CAPACITY: uint = 25;
+//pub const PEEK_MAX_CAPACITY: uint = 1024;
 
 /*
 pub struct Sniff {
@@ -80,11 +87,10 @@ impl Scent {
 		self.sour *= inten;
 	}
 
-	/*
-	fn clone(&self) -> Scent {
+	pub fn clone(&self) -> Scent {
 		Scent {sweet: self.sweet, sour: self.sour}
 	} 
-	*/
+	
 }
 impl Show for Scent {
 	fn fmt(&self, f: &mut Formatter) -> Result {
@@ -92,24 +98,37 @@ impl Show for Scent {
     }
 }
 
-
-/*
-pub struct Heading {
-	pub dir: f32,
+pub struct Peek {
+	pub peek: Vec<(u8, u16)>,
 }
-impl Heading {
-	pub fn new(dir: f32) -> Heading {
-		Heading { dir: f32 }
+impl Peek {
+	pub fn new() -> Peek {
+		Peek { peek: Vec::new() }
 	}
+	pub fn render_ent(&mut self, bear: f32, vis_size: uint, distance: f32) {
+		let center: uint = std::num::cast((bear * std::num::cast(VISION_RESOLUTION).unwrap()).round().abs()).unwrap();
+		let ent_radius: uint = vis_size / 2u;
 
-	pub fn yaw(amt: f32) {
 
+		let inten: u8 = if distance > 1023f32 {
+			0u8
+		} else {
+			1023u8 - std::num::cast(distance).unwrap()
+		};
+
+		for i in range(1024 + center - ent_radius, 1024 + center) {
+			let pixel = normalize_pixel(center + i);
+			self.peek.push((inten, std::num::cast(pixel).unwrap()));
+		}
+
+		for i in range(center, center + ent_radius) {
+			let pixel = normalize_pixel(center + i);
+			self.peek.push((inten, std::num::cast(pixel).unwrap()));
+		}
+	
 	}
-
-	//pub fn pitch() {}
+	
 }
-*/
-
 
 pub fn floats_eq(a: f32, b: f32) -> bool {
 	let ep = 0.0001f32;
@@ -124,9 +143,56 @@ pub fn distance_between(loc_a: &Location, loc_b: &Location) -> f32 {
     let x_delta = loc_b.x - loc_a.x;
     let y_delta = loc_b.y - loc_a.y;
     let dist = (x_delta.powi(2i32) + y_delta.powi(2i32)).sqrt();
-
-    //println!("*** x_delta: {}; x_delta.abs(): {} ***", x_delta, x_delta.abs());
-    //println!("*** y_delta: {}; y_delta.abs(): {} ***", y_delta, y_delta.abs());
-    //println!("*** distance: {} ***", dist);
     dist
 }
+
+pub fn distance(loc_a: &Location, loc_b: &Location) -> f32 {
+    let x_delta = loc_b.x - loc_a.x;
+    let y_delta = loc_b.y - loc_a.y;
+    (x_delta.powi(2i32) + y_delta.powi(2i32)).sqrt()
+}
+
+pub fn bearing(loc_a: &Location, loc_b: &Location) -> f32 {
+	let x_delta = loc_b.x - loc_a.x;
+    let y_delta = loc_b.y - loc_a.y;
+
+    let bearing = 1f32 - ((y_delta.atan2(x_delta) / (TAU)) + 0.25f32);
+
+    normalize_bearing(bearing)
+
+}
+
+pub fn ang_dia(dist: f32, dia: f32) -> f32 {
+	(dia / (2f32 * dist)).atan() / PI  
+}
+
+pub fn vis_size(dist: f32) -> uint {
+	std::num::cast((ang_dia(dist, ENTITY_VISIBLE_WIDTH) * std::num::cast(VISION_RESOLUTION).unwrap()).ceil().abs()).unwrap()
+}
+
+pub fn normalize_bearing(mut bearing: f32) -> f32 {
+	while bearing >= 1f32 {
+		bearing -= 1f32;
+	}
+	while bearing < 0f32 {
+		bearing += 1f32;
+	}
+	bearing
+}
+
+pub fn normalize_pixel(mut pixel: uint) -> uint {
+	while pixel >= VISION_RESOLUTION {
+		pixel -= VISION_RESOLUTION;
+	}
+	while pixel < 0u {
+		pixel += VISION_RESOLUTION;
+	}
+	pixel
+}
+
+
+
+
+     /*
+	((x_delta).sin() * (loc_b.y).cos()).atan2((loc_a.y).cos() * (loc_b.y).sin() - (loc_a.y).sin() * (loc_b.y).cos() * (x_delta).cos()) / (PI)
+	*/

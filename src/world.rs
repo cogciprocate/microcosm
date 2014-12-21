@@ -1,9 +1,12 @@
+extern crate core;
 
 //use entity;
-use entity::{ EntityBody, EntityKind, Worldly };
+use entity::{ EntityBody, EntityKind, Worldly, Mobile };
 use common;
-use common::{ Scent };
+use common::{ Scent, Peek };
 use std::num::Float;
+use std::iter::{ Iterator };
+use std;
 //use std::iter::Iterator;
 //use std::num::FloatMath;
 //use std::clone::Clone;
@@ -30,7 +33,34 @@ impl <'a>World<'a> {
 		&mut self.entities
 	}
 
-	pub fn sniff_at_entity(&self, ent_idx: uint) -> Scent {
+	pub fn look_from(&self, ent_idx: uint) -> Box<Peek> {
+		let ent = self.entities.get(ent_idx);
+		let ent_loc = ent.loc();
+		let ent_uid = ent.uid;
+		let ent_head = ent.heading();
+		drop(ent);
+
+		let mut peek = box Peek::new();
+
+		for e in self.entities.entities.iter().filter(|e| ent_filter(*e, ent_uid)) {
+			let bear = common::bearing(&e.loc(), &ent_loc) + ent_head;
+			let dist = common::distance(&e.loc(), &ent_loc);
+			let vis_size: uint = common::vis_size(dist);
+			peek.render_ent(bear, vis_size, dist);
+			println!("Entity:{} -- Bearing:{}, vis_dia:{}, peek.len():{}", e.uid, bear, vis_size, peek.peek.len());
+
+		}
+		println!("");
+
+		for p in peek.peek.iter() {
+			print!("{}", p);
+		}
+		println!("")
+		peek
+
+	}
+
+	pub fn sniff_from(&self, ent_idx: uint) -> Scent {
 		let ent = self.entities.get(ent_idx);
 		let ent_loc = ent.loc();
 		let ent_uid = ent.uid;
@@ -42,8 +72,8 @@ impl <'a>World<'a> {
 		for e in self.entities.entities.iter().filter(|e| ent_filter(*e, ent_uid)) {
 			//if ent.eaten == true { continue };
 			let mut scent = e.scent();
-			let dist: f32 = common::distance_between(&e.loc(), &ent_loc);
-			let inten = if common::floats_eq(0f32, dist) { 1f32 } else { 1f32 / dist.powi(2) };
+			let dist = common::distance(&e.loc(), &ent_loc);
+			let inten = if common::floats_eq(0f32, dist) { 1f32 / 0.0001f32.powi(2) } else { 1f32 / dist.powi(2) };
 
 			scent.scale(inten);
 			loc_scent.add(scent);
@@ -107,12 +137,7 @@ impl <'a> Entities<'a> {
 		}
 		println!("");
 	}
-
-	/*
-	pub fn iter(&self) -> vec::Entries<EntityBody> {
-		self.iter()
-	}
-	*/
+	
 	
 }
 
