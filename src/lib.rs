@@ -1,6 +1,7 @@
 
-use entity::{ EntityBody, EntityKind, EntityBrain, Mobile, WormBrain };
-use common::{ Location, Scent };
+use entity::{ EntityBody, EntityKind, EntityBrain, Mobile };
+use worm::{ WormBrain };
+use common::{ Location };
 use world::{ World };
 use std::option::{ Option };
 //use std::rc::Rc;
@@ -12,6 +13,7 @@ use std::option::{ Option };
 pub mod entity;
 pub mod common;
 pub mod world;
+pub mod worm;
 
 
 
@@ -39,11 +41,11 @@ pub fn run_test() {
 
 	world.entities().print();
 
-	world.look_from(worm_uid);
+	//world.peek_from(worm_uid);
 
 	world.entities().get_mut(worm_uid).turn(0.25f32);
 
-	world.look_from(worm_uid);
+	//world.peek_from(worm_uid);
 
 
 

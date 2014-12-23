@@ -21,13 +21,6 @@ pub trait Mobile {
 	fn heading(&self) -> f32;
 }
 
-pub trait WormBrain {
-	fn act(&mut self, world: &mut World) -> Option<()>;
-	fn navigate(&mut self, world: &mut World, scent_new: Scent);
-	fn eat(&mut self, world: &mut World, scent_new: &Scent);
-	fn propel(&self, world: &mut World);
-}
-
 
 pub struct EntityBody {
 	name: String,
@@ -135,7 +128,7 @@ impl Clone for EntityKind {
 }
 impl Show for EntityKind {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-		write!(f, "(EntityKind:{})", 
+		write!(f, "EntityKind:{}", 
 			match *self {
 					EntityKind::None 			=> "None",
 					EntityKind::Food 			=> "Food",
@@ -146,12 +139,13 @@ impl Show for EntityKind {
 	}
 	
 }
+impl Copy for EntityKind { } 
 
 
 pub struct EntityBrain {
-	body_uid: uint,
-	scent_prev: Scent,
-	just_turned_about: bool,
+	pub body_uid: uint,
+	pub scent_prev: Scent,
+	pub just_turned_about: bool,
 }
 impl EntityBrain {
 	pub fn new(body_uid: uint, world: &World) -> EntityBrain {
@@ -167,48 +161,4 @@ impl EntityBrain {
 		print!("[Heading:, Previous Scent:{}] ", self.scent_prev);
 	}
 }
-impl WormBrain for EntityBrain {
-	fn act(&mut self, world: &mut World) -> Option<()> {
-
-		let scent_new = world.sniff_from(self.body_uid);
-
-		if scent_new.sweet == 0f32 {
-			println!("Nothing else to eat");
-			return Option::None;
-		}
-
-		self.navigate(world, scent_new.clone());
-		self.propel(world);
-		self.eat(world, &scent_new);
-
-		Option::Some(())
-	}
-
-	fn navigate(&mut self, world: &mut World, scent_new: Scent) {
-		let body = world.entities().get_mut(self.body_uid);
-		if self.scent_prev.sweet > scent_new.sweet {
-			if !self.just_turned_about {
-				body.turn(0.25f32);
-				self.just_turned_about = true;
-			} else {
-				body.turn(0.5f32);
-				self.just_turned_about = false;
-			}
-		}
-
-		self.scent_prev = scent_new;
-	}
-	
-	fn eat(&mut self, world: &mut World, scent_new: &Scent) {
-		//let body = world.entities().get_mut(0);
-		
-		if scent_new.sweet >= 1f32 {
-			world.feed_entity(self.body_uid);
-		}
-	}
-
-	fn propel(&self, world: &mut World) {
-		let body = world.entities().get_mut(self.body_uid);
-		body.propel();
-	}
-}
+impl Copy for EntityBrain { }

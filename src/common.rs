@@ -63,6 +63,8 @@ impl Show for Location {
         write!(f, "(Location:(x:{})(y:{}))", self.x, self.y)
     }
 }
+impl Copy for Location { }
+
 
 pub struct Scent {
 	pub sweet: f32,
@@ -97,9 +99,11 @@ impl Show for Scent {
         write!(f, "(sweet:{}, sour:{})", self.sweet, self.sour)
     }
 }
+impl Copy for Scent { }
+
 
 pub struct Peek {
-	pub peek: Vec<(u8, u16)>,
+	pub peek: Vec<(u16, u8)>,
 }
 impl Peek {
 	pub fn new() -> Peek {
@@ -113,17 +117,12 @@ impl Peek {
 		let inten: u8 = if distance > 1023f32 {
 			0u8
 		} else {
-			1023u8 - std::num::cast(distance).unwrap()
+			std::num::cast((1023f32 - distance)/4f32).unwrap()  
 		};
 
-		for i in range(1024 + center - ent_radius, 1024 + center) {
+		for i in range(1024 + center - ent_radius, 1024 + center + ent_radius) {
 			let pixel = normalize_pixel(center + i);
-			self.peek.push((inten, std::num::cast(pixel).unwrap()));
-		}
-
-		for i in range(center, center + ent_radius) {
-			let pixel = normalize_pixel(center + i);
-			self.peek.push((inten, std::num::cast(pixel).unwrap()));
+			self.peek.push((std::num::cast(pixel).unwrap(), inten));
 		}
 	
 	}
@@ -184,9 +183,7 @@ pub fn normalize_pixel(mut pixel: uint) -> uint {
 	while pixel >= VISION_RESOLUTION {
 		pixel -= VISION_RESOLUTION;
 	}
-	while pixel < 0u {
-		pixel += VISION_RESOLUTION;
-	}
+		
 	pixel
 }
 

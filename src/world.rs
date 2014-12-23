@@ -5,8 +5,8 @@ use entity::{ EntityBody, EntityKind, Worldly, Mobile };
 use common;
 use common::{ Scent, Peek };
 use std::num::Float;
-use std::iter::{ Iterator };
-use std;
+//use std::iter::{ Iterator };
+//use std;
 //use std::iter::Iterator;
 //use std::num::FloatMath;
 //use std::clone::Clone;
@@ -33,7 +33,7 @@ impl <'a>World<'a> {
 		&mut self.entities
 	}
 
-	pub fn look_from(&self, ent_idx: uint) -> Box<Peek> {
+	pub fn peek_from(&self, ent_idx: uint) -> Box<Peek> {
 		let ent = self.entities.get(ent_idx);
 		let ent_loc = ent.loc();
 		let ent_uid = ent.uid;
@@ -47,15 +47,17 @@ impl <'a>World<'a> {
 			let dist = common::distance(&e.loc(), &ent_loc);
 			let vis_size: uint = common::vis_size(dist);
 			peek.render_ent(bear, vis_size, dist);
-			println!("Entity:{} -- Bearing:{}, vis_dia:{}, peek.len():{}", e.uid, bear, vis_size, peek.peek.len());
+			
+			//println!("Entity:{} -- Bearing:{}, vis_dia:{}, peek.len():{}", e.uid, bear, vis_size, peek.peek.len());
 
 		}
+		/*
 		println!("");
-
 		for p in peek.peek.iter() {
 			print!("{}", p);
 		}
 		println!("")
+		*/
 		peek
 
 	}
@@ -114,7 +116,7 @@ impl <'a> Entities<'a> {
 	}
 
 	pub fn add(&mut self, mut entity: EntityBody) {
-		println!("Adding EntityBody: ");
+		//println!("Adding EntityBody: ");
 		entity.uid = self.entities.len();
 		self.entities.push(entity);
 	}
