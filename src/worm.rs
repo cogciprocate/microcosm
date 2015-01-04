@@ -9,7 +9,6 @@ pub trait WormBrain {
 	fn act(&mut self, world: &mut World) -> Option<()>;
 	fn navigate(&mut self, world: &mut World, scent_new: Scent);
 	fn eat(&mut self, world: &mut World, scent_new: &Scent);
-	fn propel(&self, world: &mut World);
 }
 
 impl WormBrain for EntityBrain {
@@ -23,7 +22,7 @@ impl WormBrain for EntityBrain {
 		}
 
 		self.navigate(world, scent_new.clone());
-		self.propel(world);
+		world.entities().get_mut(self.body_uid).propel();
 		self.eat(world, &scent_new);
 
 		Option::Some(())
@@ -52,8 +51,4 @@ impl WormBrain for EntityBrain {
 		}
 	}
 
-	fn propel(&self, world: &mut World) {
-		let body = world.entities().get_mut(self.body_uid);
-		body.propel();
-	}
 }

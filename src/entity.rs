@@ -23,9 +23,9 @@ pub trait Mobile {
 
 
 pub struct EntityBody {
-	name: String,
+	pub name: String,
 	loc: Location,
-	heading: f32,
+	pub heading: f32,
 	kind: EntityKind,
 	pub eaten: bool,
 	pub uid: uint,

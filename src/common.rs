@@ -14,6 +14,7 @@ pub const WORM_SPEED: f32 = 0.1f32;
 pub const ENTITY_VISIBLE_WIDTH: f32 = 10f32;
 pub const VISION_RESOLUTION: uint = 1024u;
 
+
 //pub const PEEK_INITIAL_CAPACITY: uint = 25;
 //pub const PEEK_MAX_CAPACITY: uint = 1024;
 

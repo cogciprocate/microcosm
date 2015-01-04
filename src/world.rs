@@ -88,12 +88,13 @@ impl <'a>World<'a> {
 		//let entity = self.entities.get(ent_idx);
 		let ent_loc = self.entities.get(ent_idx).loc();
 		let ent_uid = self.entities.get(ent_idx).uid;
+		let ent_name = self.entities.get(ent_idx).name.clone();
 
 		for e in self.entities.entities.iter_mut().filter(|e| ent_filter(&**e, ent_uid)) {
 			//if ent.eaten == true { continue };
 			let dist: f32 = common::distance_between(&e.loc(), &ent_loc);
 			if dist <= 1f32 {
-				println!("Eating a {} at {}", e.kind(), &e.loc())
+				println!("{} is Eating a {} at {}", ent_name, e.kind(), &e.loc());
 				e.eaten = true;
 				return e.kind()
 			}
@@ -111,7 +112,7 @@ pub struct Entities<'a> {
 	entities: Vec<EntityBody>,
 }
 impl <'a> Entities<'a> {
-	pub fn new<'a>() -> Entities<'a> {
+	pub fn new() -> Entities<'a> {
 		Entities { entities: Vec::new() }
 	}
 
