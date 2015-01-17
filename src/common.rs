@@ -1,8 +1,7 @@
 
 use std::f32;
 use std::num::Float;
-use std::num::FloatMath;
-use std::fmt::{ Show, Formatter };
+use std::fmt::{ Formatter, String };
 use std::fmt::Result;
 use std::clone::Clone;
 use std;
@@ -12,11 +11,11 @@ pub const TAU: f32 = f32::consts::PI_2;
 
 pub const WORM_SPEED: f32 = 0.1f32;
 pub const ENTITY_VISIBLE_WIDTH: f32 = 10f32;
-pub const VISION_RESOLUTION: uint = 1024u;
+pub const VISION_RESOLUTION: usize = 1024us;
 
 
-//pub const PEEK_INITIAL_CAPACITY: uint = 25;
-//pub const PEEK_MAX_CAPACITY: uint = 1024;
+//pub const PEEK_INITIAL_CAPACITY: usize = 25;
+//pub const PEEK_MAX_CAPACITY: usize = 1024;
 
 /*
 pub struct Sniff {
@@ -59,7 +58,7 @@ impl Clone for Location {
 		self.y = source.y;
 	}
 }
-impl Show for Location {
+impl String for Location {
 	fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "(Location:(x:{})(y:{}))", self.x, self.y)
     }
@@ -95,7 +94,7 @@ impl Scent {
 	} 
 	
 }
-impl Show for Scent {
+impl String for Scent {
 	fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "(sweet:{}, sour:{})", self.sweet, self.sour)
     }
@@ -110,9 +109,9 @@ impl Peek {
 	pub fn new() -> Peek {
 		Peek { peek: Vec::new() }
 	}
-	pub fn render_ent(&mut self, bear: f32, vis_size: uint, distance: f32) {
-		let center: uint = std::num::cast((bear * std::num::cast(VISION_RESOLUTION).unwrap()).round().abs()).unwrap();
-		let ent_radius: uint = vis_size / 2u;
+	pub fn render_ent(&mut self, bear: f32, vis_size: usize, distance: f32) {
+		let center: usize = std::num::cast((bear * std::num::cast(VISION_RESOLUTION).unwrap()).round().abs()).unwrap();
+		let ent_radius: usize = vis_size / 2us;
 
 
 		let inten: u8 = if distance > 1023f32 {
@@ -166,7 +165,7 @@ pub fn ang_dia(dist: f32, dia: f32) -> f32 {
 	(dia / (2f32 * dist)).atan() / PI  
 }
 
-pub fn vis_size(dist: f32) -> uint {
+pub fn vis_size(dist: f32) -> usize {
 	std::num::cast((ang_dia(dist, ENTITY_VISIBLE_WIDTH) * std::num::cast(VISION_RESOLUTION).unwrap()).ceil().abs()).unwrap()
 }
 
@@ -180,7 +179,7 @@ pub fn normalize_bearing(mut bearing: f32) -> f32 {
 	bearing
 }
 
-pub fn normalize_pixel(mut pixel: uint) -> uint {
+pub fn normalize_pixel(mut pixel: usize) -> usize {
 	while pixel >= VISION_RESOLUTION {
 		pixel -= VISION_RESOLUTION;
 	}

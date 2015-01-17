@@ -1,10 +1,9 @@
 
-
 use common;
 use common::{ Location, Scent };
 use world::{ World };
-use std::num::FloatMath;
-use std::fmt::{ Show, Formatter, Error };
+use std::num::Float;
+use std::fmt::{ Formatter, Error, String };
 //use std::num::Float;
 //use std::collections::HashMap;
 
@@ -23,15 +22,16 @@ pub trait Mobile {
 
 
 pub struct EntityBody {
-	pub name: String,
+	pub name: &'static str,
 	loc: Location,
 	pub heading: f32,
 	kind: EntityKind,
 	pub eaten: bool,
-	pub uid: uint,
+	pub uid: usize,
 }
+
 impl EntityBody {
-	pub fn new(name: String, kind: EntityKind, loc: Location) -> EntityBody {
+	pub fn new(name: &'static str, kind: EntityKind, loc: Location) -> EntityBody {
 		EntityBody {
 			name: name,
 			loc: loc,
@@ -48,7 +48,7 @@ impl EntityBody {
 	}
 
 }
-impl Show for EntityBody {
+impl String for EntityBody {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
 		write!(f, "[EntityBody: {}]: (uid: {}) (loc: {}, {})  (kind: {}) (eaten:{})",
 				 self.name(),
@@ -126,7 +126,7 @@ impl Clone for EntityKind {
 		}
 	}
 }
-impl Show for EntityKind {
+impl String for EntityKind {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
 		write!(f, "EntityKind:{}", 
 			match *self {
@@ -143,12 +143,12 @@ impl Copy for EntityKind { }
 
 
 pub struct EntityBrain {
-	pub body_uid: uint,
+	pub body_uid: usize,
 	pub scent_prev: Scent,
 	pub just_turned_about: bool,
 }
 impl EntityBrain {
-	pub fn new(body_uid: uint, world: &World) -> EntityBrain {
+	pub fn new(body_uid: usize, world: &World) -> EntityBrain {
 
 		EntityBrain { 
 			body_uid: body_uid,

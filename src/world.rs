@@ -33,19 +33,19 @@ impl <'a>World<'a> {
 		&mut self.entities
 	}
 
-	pub fn peek_from(&self, ent_idx: uint) -> Box<Peek> {
+	pub fn peek_from(&self, ent_idx: usize) -> Box<Peek> {
 		let ent = self.entities.get(ent_idx);
 		let ent_loc = ent.loc();
 		let ent_uid = ent.uid;
 		let ent_head = ent.heading();
 		drop(ent);
 
-		let mut peek = box Peek::new();
+		let mut peek = Box::new(Peek::new());
 
 		for e in self.entities.entities.iter().filter(|e| ent_filter(*e, ent_uid)) {
 			let bear = common::bearing(&e.loc(), &ent_loc) + ent_head;
 			let dist = common::distance(&e.loc(), &ent_loc);
-			let vis_size: uint = common::vis_size(dist);
+			let vis_size: usize = common::vis_size(dist);
 			peek.render_ent(bear, vis_size, dist);
 			
 			//println!("Entity:{} -- Bearing:{}, vis_dia:{}, peek.len():{}", e.uid, bear, vis_size, peek.peek.len());
@@ -62,7 +62,7 @@ impl <'a>World<'a> {
 
 	}
 
-	pub fn sniff_from(&self, ent_idx: uint) -> Scent {
+	pub fn sniff_from(&self, ent_idx: usize) -> Scent {
 		let ent = self.entities.get(ent_idx);
 		let ent_loc = ent.loc();
 		let ent_uid = ent.uid;
@@ -84,7 +84,7 @@ impl <'a>World<'a> {
 		loc_scent
 	}
 
-	pub fn feed_entity(&mut self, ent_idx: uint) -> EntityKind {
+	pub fn feed_entity(&mut self, ent_idx: usize) -> EntityKind {
 		//let entity = self.entities.get(ent_idx);
 		let ent_loc = self.entities.get(ent_idx).loc();
 		let ent_uid = self.entities.get(ent_idx).uid;
@@ -103,7 +103,7 @@ impl <'a>World<'a> {
 	}
 }
 
-fn ent_filter(e: &EntityBody, ent_uid: uint) -> bool {
+fn ent_filter(e: &EntityBody, ent_uid: usize) -> bool {
 	e.eaten == false && e.uid != ent_uid
 }
 
@@ -122,11 +122,11 @@ impl <'a> Entities<'a> {
 		self.entities.push(entity);
 	}
 
-	pub fn get(&self, idx: uint) -> &EntityBody {
+	pub fn get(&self, idx: usize) -> &EntityBody {
 		&self.entities[idx]
 	}
 
-	pub fn get_mut(&mut self, idx: uint) -> &mut EntityBody {
+	pub fn get_mut(&mut self, idx: usize) -> &mut EntityBody {
 		&mut self.entities[idx]
 	}
 
