@@ -94,7 +94,7 @@ impl <'a>World<'a> {
 			//if ent.eaten == true { continue };
 			let dist: f32 = common::distance_between(&e.loc(), &ent_loc);
 			if dist <= 1f32 {
-				println!("{} is Eating a {} at {}", ent_name, e.kind(), &e.loc());
+				print!(" [{} is Eating a {} at {}] ", ent_name, e.kind(), &e.loc());
 				e.eaten = true;
 				return e.kind()
 			}

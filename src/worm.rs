@@ -17,7 +17,8 @@ impl WormBrain for EntityBrain {
 		let scent_new = world.sniff_from(self.body_uid);
 
 		if scent_new.sweet == 0f32 {
-			println!("Nothing else to eat");
+			//println!("")
+			//println!("Nothing else to eat");
 			return Option::None;
 		}
 
