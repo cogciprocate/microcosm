@@ -103,7 +103,7 @@ impl Copy for Scent { }
 
 
 pub struct Peek {
-	pub peek: Vec<(u16, u8)>,
+	pub peek: Vec<(u16, i8)>,
 }
 impl Peek {
 	pub fn new() -> Peek {
@@ -114,10 +114,10 @@ impl Peek {
 		let ent_radius: usize = vis_size / 2us;
 
 
-		let inten: u8 = if distance > 1023f32 {
-			0u8
+		let inten: i8 = if distance > 1023f32 {
+			0i8
 		} else {
-			std::num::cast((1023f32 - distance)/4f32).unwrap()  
+			std::num::cast((1023f32 - distance)/8f32).unwrap()  
 		};
 
 		for i in range(1024 + center - ent_radius, 1024 + center + ent_radius) {
