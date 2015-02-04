@@ -1,7 +1,7 @@
 
 use std::f32;
 use std::num::Float;
-use std::fmt::{ Formatter, String };
+use std::fmt::{ Formatter, Display };
 use std::fmt::Result;
 use std::clone::Clone;
 use std;
@@ -58,7 +58,7 @@ impl Clone for Location {
 		self.y = source.y;
 	}
 }
-impl String for Location {
+impl Display for Location {
 	fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "(Location:(x:{})(y:{}))", self.x, self.y)
     }
@@ -94,7 +94,7 @@ impl Scent {
 	} 
 	
 }
-impl String for Scent {
+impl Display for Scent {
 	fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "(sweet:{}, sour:{})", self.sweet, self.sour)
     }

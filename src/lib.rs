@@ -1,4 +1,5 @@
-#![allow(unstable)]
+#![feature(core)]
+
 use entity::{ EntityBody, EntityKind, EntityBrain, Mobile };
 use worm::{ WormBrain };
 use common::{ Location };

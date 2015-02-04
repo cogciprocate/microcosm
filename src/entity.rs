@@ -3,7 +3,7 @@ use common;
 use common::{ Location, Scent };
 use world::{ World };
 use std::num::Float;
-use std::fmt::{ Formatter, Error, String };
+use std::fmt::{ Formatter, Error, Display };
 //use std::num::Float;
 //use std::collections::HashMap;
 
@@ -48,7 +48,8 @@ impl EntityBody {
 	}
 
 }
-impl String for EntityBody {
+
+impl Display for EntityBody {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
 		write!(f, "[EntityBody: {}]: (uid: {}) (loc: {}, {})  (kind: {}) (eaten:{})",
 				 self.name(),
@@ -85,6 +86,7 @@ impl Mobile for EntityBody {
 
 	}
 }
+
 impl Worldly for EntityBody {
 	fn scent(&self) -> Scent {
 		match self.kind {
@@ -109,6 +111,8 @@ impl Worldly for EntityBody {
 
 }
 
+impl Copy for EntityBody { }
+
 
 pub enum EntityKind {
 	None,
@@ -126,7 +130,7 @@ impl Clone for EntityKind {
 		}
 	}
 }
-impl String for EntityKind {
+impl Display for EntityKind {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
 		write!(f, "EntityKind:{}", 
 			match *self {
