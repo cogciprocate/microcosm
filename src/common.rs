@@ -4,6 +4,7 @@ use std::num::Float;
 use std::fmt::{ Formatter, Display };
 use std::fmt::Result;
 use std::clone::Clone;
+use std::iter;
 use std;
 
 pub const PI: f32 = f32::consts::PI;
@@ -11,11 +12,11 @@ pub const TAU: f32 = f32::consts::PI_2;
 
 pub const WORM_SPEED: f32 = 0.1f32;
 pub const ENTITY_VISIBLE_WIDTH: f32 = 10f32;
-pub const VISION_RESOLUTION: usize = 1024us;
+//pub const VISION_RESOLUTION: u32 = 1024u32;
 
 
-//pub const PEEK_INITIAL_CAPACITY: usize = 25;
-//pub const PEEK_MAX_CAPACITY: usize = 1024;
+//pub const PEEK_INITIAL_CAPACITY: u32 = 25;
+//pub const PEEK_MAX_CAPACITY: u32 = 1024;
 
 /*
 pub struct Sniff {
@@ -103,29 +104,57 @@ impl Copy for Scent { }
 
 
 pub struct Peek {
-	pub peek: Vec<(u16, i8)>,
+	pub peek: Vec<(u16, u8)>,
+	pub width: u32,
 }
 impl Peek {
-	pub fn new() -> Peek {
-		Peek { peek: Vec::new() }
+	pub fn new(width: u32) -> Peek {
+		Peek { 
+			peek: Vec::new(),
+			width: width,
+		 }
 	}
-	pub fn render_ent(&mut self, bear: f32, vis_size: usize, distance: f32) {
-		let center: usize = std::num::cast((bear * std::num::cast(VISION_RESOLUTION).unwrap()).round().abs()).unwrap();
-		let ent_radius: usize = vis_size / 2us;
+	pub fn render_ent(&mut self, bear: f32, vis_size: u32, distance: f32) {
+		let center: u32 = self.width + std::num::cast::<f32, u32>((bear * std::num::cast::<u32, f32>(self.width).unwrap()).round().abs()).unwrap();
+		let ent_radius: u32 = vis_size >> 1;
+		let ent_radius_rem: u32 = vis_size & 1;
 
 
-		let inten: i8 = if distance > 1023f32 {
-			0i8
+		let inten: u8 = if distance > 1023f32 {
+			0u8
 		} else {
 			std::num::cast((1023f32 - distance)/8f32).unwrap()  
 		};
 
-		for i in range(1024 + center - ent_radius, 1024 + center + ent_radius) {
-			let pixel = normalize_pixel(center + i);
+		for i in (center - ent_radius)..(center + ent_radius + ent_radius_rem) {
+			let pixel = normalize_pixel(i, self.width);
 			self.peek.push((std::num::cast(pixel).unwrap(), inten));
 		}
 	
 	}
+
+	pub fn unfold(&self) -> Vec<u8> {
+		let mut vec: Vec<u8> = iter::repeat(0).take(self.width as usize).collect();
+		self.unfold_into(&mut vec, 0);
+		vec
+	}
+
+	pub fn unfold_into(&self, vec: &mut Vec<u8>, offset: usize) {
+		assert!(vec.len() >= (self.width as usize + offset));
+
+		for x in vec.iter_mut() {
+		    *x = 0;
+		}
+
+		for &p in self.peek.iter() {
+			let (idx, state) = p;
+			vec[idx as usize + offset] = state;
+		}
+	}
+
+	/*pub fn width(&self) -> u8 {
+		self.peek.len()
+	}*/
 	
 }
 
@@ -165,8 +194,8 @@ pub fn ang_dia(dist: f32, dia: f32) -> f32 {
 	(dia / (2f32 * dist)).atan() / PI  
 }
 
-pub fn vis_size(dist: f32) -> usize {
-	std::num::cast((ang_dia(dist, ENTITY_VISIBLE_WIDTH) * std::num::cast(VISION_RESOLUTION).unwrap()).ceil().abs()).unwrap()
+pub fn vis_size(dist: f32, world_width: u32) -> u32 {
+	std::num::cast((ang_dia(dist, ENTITY_VISIBLE_WIDTH) * std::num::cast::<u32, f32>(world_width).unwrap()).round().abs()).unwrap()
 }
 
 pub fn normalize_bearing(mut bearing: f32) -> f32 {
@@ -179,9 +208,9 @@ pub fn normalize_bearing(mut bearing: f32) -> f32 {
 	bearing
 }
 
-pub fn normalize_pixel(mut pixel: usize) -> usize {
-	while pixel >= VISION_RESOLUTION {
-		pixel -= VISION_RESOLUTION;
+pub fn normalize_pixel(mut pixel: u32, world_width: u32) -> u32 {
+	while pixel >= world_width {
+		pixel -= world_width;
 	}
 		
 	pixel

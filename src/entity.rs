@@ -10,7 +10,7 @@ use std::fmt::{ Formatter, Error, Display };
 pub trait Worldly {
 	fn scent(&self) -> Scent;
 	fn loc(&self) -> Location;
-	fn name(&self) -> &str;
+	fn name(&self) -> &'static str;
 	fn kind(&self) -> EntityKind;
 }
 
@@ -101,8 +101,8 @@ impl Worldly for EntityBody {
 		self.loc.clone()
 	}
 
-	fn name(&self) -> &str {
-		self.name.as_slice()
+	fn name(&self) -> &'static str {
+		&self.name
 	}
 
 	fn kind(&self) -> EntityKind {

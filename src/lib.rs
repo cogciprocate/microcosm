@@ -19,7 +19,7 @@ pub mod worm;
 
 
 pub fn run_test() {
-	let mut world: World = World::new();
+	let mut world: World = World::new(1024);
 
 	let worm =  EntityBody::new("worm", EntityKind::Creature, Location::origin());
 	let food = EntityBody::new("food", EntityKind::Food, Location::new(50f32, 50f32));
@@ -52,7 +52,7 @@ pub fn run_test() {
 
 	let mut worm_brain = EntityBrain::new(worm_uid, &world);
 
-	for i in range(0us, 100000) {
+	for i in 0..100000 {
 
 		if worm_brain.act(&mut world) == Option::None {
 			println!("Everything eaten after {} iterations.", i);

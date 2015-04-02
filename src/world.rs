@@ -18,14 +18,15 @@ use std::num::Float;
 //mod entity;
 //mod common;
 
-pub struct World<'a> {
-	entities: Entities<'a>,
-
+pub struct World{
+	entities: Entities,
+	width: u32,
 }
-impl <'a>World<'a> {
-	pub fn new() -> World<'a> {
+impl World {
+	pub fn new(width: u32) -> World {
 		World { 
 			entities: Entities::new(),
+			width: width,
 		}
 	}
 
@@ -40,12 +41,12 @@ impl <'a>World<'a> {
 		let ent_head = ent.heading();
 		drop(ent);
 
-		let mut peek = Box::new(Peek::new());
+		let mut peek = Box::new(Peek::new(self.width));
 
 		for e in self.entities.entities.iter().filter(|e| ent_filter(*e, ent_uid)) {
 			let bear = common::bearing(&e.loc(), &ent_loc) + ent_head;
 			let dist = common::distance(&e.loc(), &ent_loc);
-			let vis_size: usize = common::vis_size(dist);
+			let vis_size: u32 = common::vis_size(dist, self.width);
 			peek.render_ent(bear, vis_size, dist);
 			
 			//println!("Entity:{} -- Bearing:{}, vis_dia:{}, peek.len():{}", e.uid, bear, vis_size, peek.peek.len());
@@ -108,11 +109,11 @@ fn ent_filter(e: &EntityBody, ent_uid: usize) -> bool {
 }
 
 
-pub struct Entities<'a> {
+pub struct Entities {
 	entities: Vec<EntityBody>,
 }
-impl <'a> Entities<'a> {
-	pub fn new() -> Entities<'a> {
+impl  Entities {
+	pub fn new() -> Entities {
 		Entities { entities: Vec::new() }
 	}
 
