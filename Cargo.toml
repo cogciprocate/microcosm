@@ -4,3 +4,6 @@ name = "microcosm"
 version = "0.0.1"
 authors = ["Nick Sanders <nsan1129@gmail.com>"]
 
+[dependencies]
+rand = "0.3.5"
+num = "0.1.19"

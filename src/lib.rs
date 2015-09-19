@@ -1,10 +1,10 @@
-#![feature(core)]
+
+extern crate num;
 
 use entity::{ EntityBody, EntityKind, EntityBrain, Mobile };
 use worm::{ WormBrain };
 use common::{ Location };
 use world::{ World };
-use std::option::{ Option };
 //use std::rc::Rc;
 //use std::rc::Weak;
 //use std::cell::RefCell;
@@ -44,7 +44,7 @@ pub fn run_test() {
 
 	//world.peek_from(worm_uid);
 
-	world.entities().get_mut(worm_uid).turn(0.25f32);
+	world.entities().get_mut(worm_uid).turn(0.25f32, true);
 
 	//world.peek_from(worm_uid);
 

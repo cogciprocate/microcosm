@@ -1,10 +1,9 @@
-extern crate core;
 
 //use entity;
 use entity::{ EntityBody, EntityKind, Worldly, Mobile };
 use common;
 use common::{ Scent, Peek };
-use std::num::Float;
+use num::Float;
 //use std::iter::{ Iterator };
 //use std;
 //use std::iter::Iterator;
@@ -76,7 +75,9 @@ impl World {
 			//if ent.eaten == true { continue };
 			let mut scent = e.scent();
 			let dist = common::distance(&e.loc(), &ent_loc);
+
 			let inten = if common::floats_eq(0f32, dist) { 1f32 / 0.0001f32.powi(2) } else { 1f32 / dist.powi(2) };
+			let inten = (ent_idx & 0xFF) as f32;
 
 			scent.scale(inten);
 			loc_scent.add(scent);

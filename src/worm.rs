@@ -33,10 +33,10 @@ impl WormBrain for EntityBrain {
 		let body = world.entities().get_mut(self.body_uid);
 		if self.scent_prev.sweet > scent_new.sweet {
 			if !self.just_turned_about {
-				body.turn(0.25f32);
+				body.turn(0.25f32, true);
 				self.just_turned_about = true;
 			} else {
-				body.turn(0.5f32);
+				body.turn(0.5f32, true);
 				self.just_turned_about = false;
 			}
 		}

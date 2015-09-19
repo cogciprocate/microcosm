@@ -2,7 +2,7 @@
 use common;
 use common::{ Location, Scent };
 use world::{ World };
-use std::num::Float;
+use num::Float;
 use std::fmt::{ Formatter, Error, Display };
 //use std::num::Float;
 //use std::collections::HashMap;
@@ -16,11 +16,13 @@ pub trait Worldly {
 
 pub trait Mobile {
 	fn propel(&mut self);
-	fn turn(&mut self, amt: f32);
+	fn turn(&mut self, amt: f32, turn_left: bool);
 	fn heading(&self) -> f32;
+	fn head_north(&mut self);
 }
 
 
+#[derive(Clone, Copy)]
 pub struct EntityBody {
 	pub name: &'static str,
 	loc: Location,
@@ -63,9 +65,17 @@ impl Display for EntityBody {
 }
 
 impl Mobile for EntityBody {
-	fn turn(&mut self, amt: f32) {
-		self.heading += amt;
+	fn turn(&mut self, amt: f32, turn_left: bool) {
+		if turn_left {
+			self.heading += amt;
+		} else {
+			self.heading -= amt;
+		}
 		self.heading = common::normalize_bearing(self.heading);
+	}
+
+	fn head_north(&mut self) {
+		self.heading = 0f32;
 	}
 
 	fn heading(&self) -> f32 {
@@ -73,7 +83,6 @@ impl Mobile for EntityBody {
 	}
 
 	fn propel(&mut self) {
-
 		let distance = common::WORM_SPEED;
 		
 		let direction = self.heading * common::TAU;
@@ -111,25 +120,14 @@ impl Worldly for EntityBody {
 
 }
 
-impl Copy for EntityBody { }
-
-
+#[derive(Clone, Copy)]
 pub enum EntityKind {
 	None,
 	Food,
 	Poison,
 	Creature,
 }
-impl Clone for EntityKind {
-	fn clone(&self) -> EntityKind {
-		match *self {
-			EntityKind::None 			=> EntityKind::None,
-			EntityKind::Food 			=> EntityKind::Food,
-			EntityKind::Poison 			=> EntityKind::Poison,
-			EntityKind::Creature 		=> EntityKind::Creature,
-		}
-	}
-}
+
 impl Display for EntityKind {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
 		write!(f, "EntityKind:{}", 
@@ -143,9 +141,9 @@ impl Display for EntityKind {
 	}
 	
 }
-impl Copy for EntityKind { } 
 
 
+#[derive(Clone, Copy)]
 pub struct EntityBrain {
 	pub body_uid: usize,
 	pub scent_prev: Scent,
@@ -165,4 +163,3 @@ impl EntityBrain {
 		print!("[Heading:, Previous Scent:{}] ", self.scent_prev);
 	}
 }
-impl Copy for EntityBrain { }

@@ -1,14 +1,13 @@
 
-use std::f32;
-use std::num::Float;
+//use num::Float;
 use std::fmt::{ Formatter, Display };
 use std::fmt::Result;
 use std::clone::Clone;
 use std::iter;
 use std;
 
-pub const PI: f32 = f32::consts::PI;
-pub const TAU: f32 = f32::consts::PI_2;
+pub const PI: f32 = std::f32::consts::PI;
+pub const TAU: f32 = PI * 2f32;
 
 pub const WORM_SPEED: f32 = 0.1f32;
 pub const ENTITY_VISIBLE_WIDTH: f32 = 10f32;
@@ -54,10 +53,10 @@ impl Clone for Location {
 	fn clone(&self) -> Location {
 		Location { x: self.x, y: self.y }
 	}
-	fn clone_from(&mut self, source: &Location) { 
+	/*fn clone_from(&mut self, source: &Location) { 
 		self.x = source.x;
 		self.y = source.y;
-	}
+	}*/
 }
 impl Display for Location {
 	fn fmt(&self, f: &mut Formatter) -> Result {
@@ -67,6 +66,7 @@ impl Display for Location {
 impl Copy for Location { }
 
 
+#[derive(Clone, Copy)]
 pub struct Scent {
 	pub sweet: f32,
 	pub sour: f32,
@@ -100,7 +100,6 @@ impl Display for Scent {
         write!(f, "(sweet:{}, sour:{})", self.sweet, self.sour)
     }
 }
-impl Copy for Scent { }
 
 
 pub struct Peek {
@@ -115,7 +114,8 @@ impl Peek {
 		 }
 	}
 	pub fn render_ent(&mut self, bear: f32, vis_size: u32, distance: f32) {
-		let center: u32 = self.width + std::num::cast::<f32, u32>((bear * std::num::cast::<u32, f32>(self.width).unwrap()).round().abs()).unwrap();
+		let center: u32 = self.width + ((bear * self.width as f32).round().abs()) as u32;
+		/*let center: u32 = self.width + std::num::cast::<f32, u32>((bear * std::num::cast::<u32, f32>(self.width).unwrap()).round().abs()).unwrap();*/
 		let ent_radius: u32 = vis_size >> 1;
 		let ent_radius_rem: u32 = vis_size & 1;
 
@@ -123,14 +123,15 @@ impl Peek {
 		let inten: u8 = if distance > 1023f32 {
 			0u8
 		} else {
-			std::num::cast((1023f32 - distance)/8f32).unwrap()  
+			((1023f32 - distance)/8f32) as u8
+			/*std::num::cast((1023f32 - distance)/8f32).unwrap()  */
 		};
 
 		for i in (center - ent_radius)..(center + ent_radius + ent_radius_rem) {
 			let pixel = normalize_pixel(i, self.width);
-			self.peek.push((std::num::cast(pixel).unwrap(), inten));
+			self.peek.push((pixel as u16, inten));
+			/*self.peek.push((std::num::cast(pixel).unwrap(), inten));*/
 		}
-	
 	}
 
 	pub fn unfold(&self) -> Vec<u8> {
@@ -155,7 +156,6 @@ impl Peek {
 	/*pub fn width(&self) -> u8 {
 		self.peek.len()
 	}*/
-	
 }
 
 pub fn floats_eq(a: f32, b: f32) -> bool {
@@ -195,7 +195,7 @@ pub fn ang_dia(dist: f32, dia: f32) -> f32 {
 }
 
 pub fn vis_size(dist: f32, world_width: u32) -> u32 {
-	std::num::cast((ang_dia(dist, ENTITY_VISIBLE_WIDTH) * std::num::cast::<u32, f32>(world_width).unwrap()).round().abs()).unwrap()
+	(ang_dia(dist, ENTITY_VISIBLE_WIDTH) * (world_width as f32)).round().abs() as u32
 }
 
 pub fn normalize_bearing(mut bearing: f32) -> f32 {
